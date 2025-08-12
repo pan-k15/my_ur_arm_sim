@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:include filename="$(find robot_description)/urdf/inc/ur_joint_control.xacro" />
+
+  <xacro:macro name="ur_ros2_control"
+    params="
+    name
+    tf_prefix
+    transmission_hw_interface:=hardware_interface/PositionJointInterface
+    initial_positions:=${dict(shoulder_pan_joint=0.0,shoulder_lift_joint=-1.57,elbow_joint=0.0,wrist_1_joint=-1.57,wrist_2_joint=0.0,wrist_3_joint=0.0)}
+    ">
+
+
+    <!-- Add URDF transmission elements (for ros_control) -->
+    <!--<xacro:ur_arm_transmission
+    prefix="${prefix}" hw_interface="${transmission_hw_interface}" />-->
+    <!-- Placeholder for ros2_control transmission which don't yet exist -->
+
+    <ros2_control name="${name}" type="system">
+      <hardware>
+        <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+      </hardware>
+      <!-- Joint interfaces -->
+      <!-- With Ignition or Hardware, they handle mimic joints, so we only need this command
+      interface activated -->
+      <joint name="${tf_prefix}robotiq_85_left_knuckle_joint">
+        <command_interface name="position" />
+        <state_interface name="position">
+          <param name="initial_value">0.7929</param>
+        </state_interface>
+        <state_interface name="velocity" />
+      </joint>
+      <!-- When simulating we need to include the rest of the gripper joints -->
+      <joint name="${tf_prefix}robotiq_85_right_knuckle_joint">
+        <param name="mimic">${tf_prefix}robotiq_85_left_knuckle_joint</param>
+        <param name="multiplier">-1</param>
+          <!-- <command_interface name="position" /> -->
+          <state_interface name="position" />
+          <state_interface name="velocity" />
+      </joint>
+      <joint name="${tf_prefix}robotiq_85_left_inner_knuckle_joint">
+        <param name="mimic">${tf_prefix}robotiq_85_left_knuckle_joint</param>
+        <param name="multiplier">1</param>
+          <!-- <command_interface name="position" /> -->
+          <state_interface name="position" />
+          <state_interface name="velocity" />
+      </joint>
+      <joint name="${tf_prefix}robotiq_85_right_inner_knuckle_joint">
+        <param name="mimic">${tf_prefix}robotiq_85_left_knuckle_joint</param>
+        <param name="multiplier">-1</param>
+          <!-- <command_interface name="position" /> -->
+          <state_interface name="position" />
+          <state_interface name="velocity" />
+      </joint>
+      <joint name="${tf_prefix}robotiq_85_left_finger_tip_joint">
+        <param name="mimic">${tf_prefix}robotiq_85_left_knuckle_joint</param>
+        <param name="multiplier">-1</param>
+          <!-- <command_interface name="position" /> -->
+          <state_interface name="position" />
+          <state_interface name="velocity" />
+      </joint>
+      <joint name="${tf_prefix}robotiq_85_right_finger_tip_joint">
+        <param name="mimic">${tf_prefix}robotiq_85_left_knuckle_joint</param>
+        <param name="multiplier">1</param>
+          <!-- <command_interface name="position" /> -->
+          <state_interface name="position" />
+          <state_interface name="velocity" />
+      </joint>
+      <xacro:ur_joint_control_description
+        tf_prefix="${tf_prefix}"
+        initial_positions="${initial_positions}"
+      />
+    </ros2_control>
+  </xacro:macro>
+</robot>
